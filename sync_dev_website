@@ -1,0 +1,88 @@
+#! /bin/bash
+
+E_REMOTEFAIL=80
+E_COPYFAIL=81
+E_IMPORTFAIL=82
+E_UPDATEFAIL=83
+E_ASSETSFAIL=84
+E_CONFIGFAIL=85
+
+
+
+if [ -r $HOME/.sync_dev_website/$1.config ] ; then
+	. $HOME/.sync_dev_website/$1.config
+else
+	echo "can't read $HOME/.sync_dev_website/$1.config"
+	echo "available config files are:"
+ 	find $HOME/.sync_dev_website/*.config -type f | sed -e 's/.*\///' -e 's/.config//'
+	exit $E_CONFIGFAIL
+fi
+
+
+echo attempting to sync $NAME
+echo connecting to $SERVER
+
+echo "dumping live database"
+ssh $SERVER . $REMOTEBIN/dumplive.sh || {
+	echo "can't dump database on live" >&2
+	exit $E_REMOTEFAIL
+}
+
+echo "copying database from $REMOTEDIR to /tmp/latest.$$.sql"
+scp $SERVER:$DUMPFILE /tmp/latest.$$.sql || {
+	echo "can't copy from remote to local"
+	exit $E_COPYFAIL
+}
+
+echo "replacing local database"
+mysql -u$USER -p$PASS $DATABASE < /tmp/latest.$$.sql || {
+	echo "can't import live db dump into local db"
+	echo "trying to start MAMP and see if that solves the problem"
+	open -a MAMP || {
+		echo "sorry, couldn't start MAMP"
+		exit $E_IMPORTFAIL
+	}
+}
+
+echo "pulling assets and furniture from production to local"
+. $HOME/bin/pull_assets || {
+	echo "can't pull assets or furniture from production to local"
+	exit $E_ASSETSFAIL
+}
+
+# this will need to be fixed for the LCF when we have two or more versions of that site. Hack fix by taking out the test for #2.
+if [ $1 = lsf ] ; then
+	echo "LSF site"
+	echo "Soft linking assets directory to $ASSETSDIR"
+	unlink "$LOCALDIR/assets"
+	ln -s "$LOCAL_ASSETS_DIR" "$LOCALDIR/assets"
+	echo "Soft linking furniture directory to $FURNITUREDIR"
+	unlink "$LOCALDIR/furniture"
+	ln -s "$FURNITUREDIR" "$LOCALDIR/furniture"
+fi
+
+
+echo "updating local database to point to itself"
+mysql -u$USER -p$PASS $DATABASE < "$HOME/.sync_dev_website/$LOCALISE_SQL" || {
+	echo "can't update local database to point to -dev"
+	exit $E_UPDATEFAIL
+}
+
+echo "live database downloaded and installed to dev"
+
+
+# sanity check to make sure we have enough memory assigned locally for big databases like LSF
+D_SIZE=`ssh $SERVER "du -h $DUMPFILE" | awk '{ print $1 }' | sed 's/M//'`
+if [[ $D_SIZE =~ .*K.* ]] ; then 
+	exit 0			# Database can be measured in Kb; bail
+fi
+PHP_MEM=`/Applications/MAMP/bin/php/php5.4.34/bin/php -i | awk '/memory_limit/ { print $5 }' | sed 's/M//'`
+
+# bc will return 0 for false and 1 for true
+if [ $(echo "$D_SIZE >= $PHP_MEM" | bc) -ne 0 ] ; then
+	echo "Remote Database is $D_SIZE Mb and MAMP PHP Memory is only $PHP_MEM Mb"
+	echo "May cause problems; try upping the limit in php.ini"
+fi
+
+
+exit 0

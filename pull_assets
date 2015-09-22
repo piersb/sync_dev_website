@@ -1,0 +1,4 @@
+#! /bin/bash
+
+rsync -avh $SERVER:"$REMOTEDIR/furniture/" "$FURNITUREDIR"
+rsync -avh $SERVER:"$REMOTE_ASSETS_DIR" "$LOCAL_ASSETS_DIR"
