@@ -1,6 +1,6 @@
 # sync_dev_website
 
-Bash script to duplicate a live Wordpress database on your local machine
+Bash script to duplicate a live Wordpress database on your local machine so you can use MAMP or similar for local dev fun.
 
 * **dumpfile.sh** - lives on the remote machine, dumps the WP database
 * **pull_assets** - pulls down all the WP assets added via users there; lives in the same directory as sync_dev_website
