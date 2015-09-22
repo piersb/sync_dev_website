@@ -1,5 +1,9 @@
 #! /bin/bash
 
+# Pulls a copy of the WordPress database to your local machine, together with any assets
+# Config files live in ~/.sync_dev_website/
+
+
 E_REMOTEFAIL=80
 E_COPYFAIL=81
 E_IMPORTFAIL=82
