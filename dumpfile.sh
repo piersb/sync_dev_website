@@ -8,5 +8,5 @@ PASS="pass"
 DATABASE="database"
 OWNER="owner"
 
-mysqldump -$USER -p$PASS $DATABASE > "$DUMPFILE"
+mysqldump -u$USER -p$PASS $DATABASE > "$DUMPFILE"
 chown $OWNER:$OWNER "$DUMPFILE"
