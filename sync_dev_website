@@ -48,11 +48,26 @@ mysql -u$USER -p$PASS $DATABASE < /tmp/latest.$$.sql || {
 	}
 }
 
-echo "pulling assets and furniture from production to local"
-. $HOME/bin/pull_assets || {
-	echo "can't pull assets or furniture from production to local"
-	exit $E_ASSETSFAIL
-}
+if [ -z $FURNITUREDIR ] ; then 
+	echo "no furniture directory set in config file"
+else
+	echo "site configured to use furniture images; downloading them"
+	rsync -avh $SERVER:"$REMOTEDIR/furniture/" "$FURNITUREDIR" || {
+		echo "can't pull furniture from remote to local"
+		exit $E_ASSETSFAIL
+	}
+fi
+
+if [ -z $REMOTE_ASSETS_DIR] ; then
+	echo "no remote assets directory set in config file"
+else
+	echo "site configured to use assets outside of main wp-content folder; downloading them"
+	rsync -avh $SERVER:"$REMOTE_ASSETS_DIR" "$LOCAL_ASSETS_DIR" || {
+		echo "can't pull furniture from remote to local"
+		exit $E_ASSETSFAIL
+	}
+fi
+
 
 # this will need to be fixed for the LCF when we have two or more versions of that site. Hack fix by taking out the test for #2.
 if [ $1 = lsf ] ; then
