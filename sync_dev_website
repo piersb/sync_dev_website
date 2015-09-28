@@ -39,7 +39,7 @@ scp $SERVER:$DUMPFILE /tmp/latest.$$.sql || {
 }
 
 echo "replacing local database"
-mysql -u$USER -p$PASS $DATABASE < /tmp/latest.$$.sql || {
+mysql --defaults-extra-file=$HOME/.sync_dev_website/durand.mysql.cnf < /tmp/latest.$$.sql || {
 	echo "can't import live db dump into local db"
 	echo "trying to start MAMP and see if that solves the problem"
 	open -a MAMP || {
@@ -82,7 +82,7 @@ fi
 
 
 echo "updating local database to point to itself"
-mysql -u$USER -p$PASS $DATABASE < "$HOME/.sync_dev_website/$LOCALISE_SQL" || {
+mysql --defaults-extra-file=$HOME/.sync_dev_website/durand.mysql.cnf < "$HOME/.sync_dev_website/$LOCALISE_SQL" || {
 	echo "can't update local database to point to -dev"
 	exit $E_UPDATEFAIL
 }
