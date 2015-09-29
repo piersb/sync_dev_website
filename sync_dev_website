@@ -66,10 +66,15 @@ fi
 
 if [ -z $REMOTE_ASSETS_DIR] ; then
 	echo "no remote assets directory set in config file"
+	echo "falling back to $REMOTEDIR/wp-content/uploads"
+	rsync -avh $SERVER:"$REMOTEDIR/wp-content/uploads" "$LOCALDIR/wp-content" || {
+		echo "can't pull assets from remote to local"
+		exit $E_ASSETSFAIL
+	}
 else
 	echo "site configured to use assets outside of main wp-content folder; downloading them"
 	rsync -avh $SERVER:"$REMOTE_ASSETS_DIR" "$LOCAL_ASSETS_DIR" || {
-		echo "can't pull furniture from remote to local"
+		echo "can't pull assets from remote to local"
 		exit $E_ASSETSFAIL
 	}
 fi
