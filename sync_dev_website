@@ -64,7 +64,7 @@ else
 	}
 fi
 
-if [ -z $REMOTE_ASSETS_DIR] ; then
+if [ -z $REMOTE_ASSETS_DIR ] ; then
 	echo "no remote assets directory set in config file"
 	echo "falling back to $REMOTEDIR/wp-content/uploads"
 	rsync -avh $SERVER:"$REMOTEDIR/wp-content/uploads" "$LOCALDIR/wp-content" || {
