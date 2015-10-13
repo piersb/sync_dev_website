@@ -34,7 +34,13 @@ echo connecting to $SERVER
 
 echo "dumping live database"
 ssh $SERVER . $REMOTEBIN/dumplive.sh || {
-	echo "can't dump database on live" >&2
+	echo "can't dump database on remote" >&2
+	exit $E_REMOTEFAIL
+}
+
+echo "compressing database"
+ssh $SERVER "touch $REMOTEBIN/hello" || {
+	echo "can't compress database on remote" >&2
 	exit $E_REMOTEFAIL
 }
 
