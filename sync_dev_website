@@ -44,7 +44,7 @@ ssh $SERVER "gzip -cf $DUMPFILE > /tmp/$NAME.dumpfile.gz" || {
 	exit $E_REMOTEFAIL
 }
 
-echo "copying database from /tmp/$NAME_dumpfile.gz to /tmp/latest.$$.sql.gz"
+echo "copying database from /tmp/$NAME.dumpfile.gz to /tmp/latest.$$.sql.gz"
 scp $SERVER:/tmp/$NAME.dumpfile.gz /tmp/latest.$$.sql.gz || {
 	echo "can't copy from remote to local"
 	exit $E_COPYFAIL
@@ -76,21 +76,24 @@ else
 	}
 fi
 
-if [ -z $REMOTE_ASSETS_DIR ] ; then
-	echo "no remote assets directory set in config file"
-	echo "falling back to $REMOTEDIR/wp-content/uploads"
-	rsync -avh $SERVER:"$REMOTEDIR/wp-content/uploads" "$LOCALDIR/wp-content" || {
-		echo "can't pull assets from remote to local"
-		exit $E_ASSETSFAIL
-	}
-else
-	echo "site configured to use assets outside of main wp-content folder; downloading them"
-	rsync -avh $SERVER:"$REMOTE_ASSETS_DIR" "$LOCAL_ASSETS_DIR" || {
-		echo "can't pull assets from remote to local"
-		exit $E_ASSETSFAIL
-	}
-fi
+if [ $1 != dezeen ] ; then # hacky, just to get it up and running
 
+	if [ -z $REMOTE_ASSETS_DIR ] ; then
+		echo "no remote assets directory set in config file"
+		echo "falling back to $REMOTEDIR/wp-content/uploads"
+		rsync -avh $SERVER:"$REMOTEDIR/wp-content/uploads" "$LOCALDIR/wp-content" || {
+			echo "can't pull assets from remote to local"
+			exit $E_ASSETSFAIL
+		}
+	else
+		echo "site configured to use assets outside of main wp-content folder; downloading them"
+		rsync -avh $SERVER:"$REMOTE_ASSETS_DIR" "$LOCAL_ASSETS_DIR" || {
+			echo "can't pull assets from remote to local"
+			exit $E_ASSETSFAIL
+		}
+	fi
+
+fi
 
 # this will need to be fixed for the LCF when we have two or more versions of that site. Hack fix by taking out the test for #2.
 if [ $1 = lsf ] ; then
