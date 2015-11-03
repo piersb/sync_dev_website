@@ -76,7 +76,7 @@ else
 	}
 fi
 
-if [ $1 != dezeen ] ; then # hacky, just to get it up and running
+if [ $1 = lsf ] ; then # hacky, just to get it up and running. should also code for lcf
 
 	if [ -z $REMOTE_ASSETS_DIR ] ; then
 		echo "no remote assets directory set in config file"
@@ -122,6 +122,8 @@ if [[ $D_SIZE =~ .*K.* ]] ; then
 	exit 0			# Database can be measured in Kb; bail
 fi
 PHP_MEM=`/Applications/MAMP/bin/php/php5.4.34/bin/php -i | awk '/memory_limit/ { print $5 }' | sed 's/M//'`
+
+echo "Database $D_SIZE"; echo "\n"; echo "PHP Memory $PHP_MEM";
 
 # bc will return 0 for false and 1 for true
 if [ $(echo "$D_SIZE >= $PHP_MEM" | bc) -ne 0 ] ; then
