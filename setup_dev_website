@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# call setup_dev_website domain
+
+
+if [[ $# -eq 0 ]] ; then
+    echo 'usage: setup_dev_website domain'
+    exit 0
+fi
+
+DOMAIN=$1
+
+cp /etc/hosts /etc/hosts.old 
+
+echo "appending $DOMAIN-dev.com to /etc/hosts"
+
+echo "127.0.0.1	$DOMAIN-dev.com www.$DOMAIN-dev.com" >> /etc/hosts
+
