@@ -76,24 +76,24 @@ else
 	}
 fi
 
-if [ $1 = lsf ] ; then # hacky, just to get it up and running. should also code for lcf
 
-	if [ -z $REMOTE_ASSETS_DIR ] ; then
-		echo "no remote assets directory set in config file"
-		echo "falling back to $REMOTEDIR/wp-content/uploads"
-		rsync -avh $SERVER:"$REMOTEDIR/wp-content/uploads" "$LOCALDIR/wp-content" || {
-			echo "can't pull assets from remote to local"
-			exit $E_ASSETSFAIL
-		}
-	else
-		echo "site configured to use assets outside of main wp-content folder; downloading them"
-		rsync -avh $SERVER:"$REMOTE_ASSETS_DIR" "$LOCAL_ASSETS_DIR" || {
-			echo "can't pull assets from remote to local"
-			exit $E_ASSETSFAIL
-		}
-	fi
 
+if [ -z $REMOTE_ASSETS_DIR ] ; then
+	echo "no remote assets directory set in config file"
+	echo "falling back to $REMOTEDIR/wp-content/uploads"
+	rsync -avh $SERVER:"$REMOTEDIR/wp-content/uploads" "$LOCALDIR/wp-content" || {
+		echo "can't pull assets from remote to local"
+		exit $E_ASSETSFAIL
+	}
+else
+	echo "site configured to use assets outside of main wp-content folder; downloading them"
+	rsync -avh $SERVER:"$REMOTE_ASSETS_DIR" "$LOCAL_ASSETS_DIR" || {
+		echo "can't pull assets from remote to local"
+		exit $E_ASSETSFAIL
+	}
 fi
+
+
 
 # this will need to be fixed for the LCF when we have two or more versions of that site. Hack fix by taking out the test for #2.
 if [ $1 = lsf ] ; then
