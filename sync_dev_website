@@ -123,22 +123,4 @@ mysql --defaults-extra-file=$MYSQLCNF < "$HOME/.sync_dev_website/$LOCALISE_SQL" 
 echo "live database downloaded and installed to dev"
 
 
-# sanity check to make sure we have enough memory assigned locally for big databases like LSF
-D_SIZE=`ssh $SERVER "du -h $DUMPFILE" | awk '{ print $1 }' | sed 's/M//'`
-if [[ $D_SIZE =~ .*K.* ]] ; then 
-	exit 0			# Database can be measured in Kb; bail
-fi
-if [[ $D_SIZE =~ .*G.* ]] ; then 
-	D_SIZE=1000			# Database can be measured in Gb; set to 1000M
-fi
-
-PHP_MEM=`/Applications/MAMP/bin/php/php5.4.34/bin/php -i | awk '/memory_limit/ { print $5 }' | sed 's/M//'`
-
-# bc will return 0 for false and 1 for true
-if [ $(echo "$D_SIZE >= $PHP_MEM" | bc) -ne 0 ] ; then
-	echo "Remote Database is $D_SIZE Mb or more and MAMP PHP Memory is only $PHP_MEM Mb"
-	echo "May cause problems; try upping the limit in php.ini if so"
-fi
-
-
 exit 0
