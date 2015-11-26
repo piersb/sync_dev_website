@@ -29,6 +29,11 @@ if [ -z "$DUMPFILE" ]; then echo DUMPFILE is not set in config file; exit $E_CON
 if [ -z "$SERVER" ]; then echo SERVER is not set in config file; exit $E_CONFIGFAIL; fi
 if [ -z "$LOCALISE_SQL" ]; then echo LOCALISE_SQL is not set in config file; exit $E_CONFIGFAIL; fi
 
+if [ -z "$DATASERVER" ]; then 
+	echo "DATASERVER is not set in config file; setting to $SERVER"
+	DATASERVER=$SERVER
+fi
+
 echo attempting to sync $NAME
 
 if [ -z $MYSQLCNF ]; then 							
@@ -40,19 +45,19 @@ fi
 echo connecting to $SERVER
 
 echo "dumping live database"
-ssh $SERVER "mysqldump --defaults-file=$REMOTEMYSQLCNF $DATABASE > $DUMPFILE" || {
+ssh $DATASERVER "mysqldump --defaults-file=$REMOTEMYSQLCNF $DATABASE > $DUMPFILE" || {
 	echo "can't dump database on remote" >&2
 	exit $E_REMOTEFAIL
 }
 
 echo "compressing database"
-ssh $SERVER "gzip -cf $DUMPFILE > /tmp/$NAME.dumpfile.gz" || {
+ssh $DATASERVER "gzip -cf $DUMPFILE > /tmp/$NAME.dumpfile.gz" || {
 	echo "can't compress database on remote" >&2
 	exit $E_REMOTEFAIL
 }
 
 echo "copying database from /tmp/$NAME.dumpfile.gz to /tmp/latest.$$.sql.gz"
-scp $SERVER:/tmp/$NAME.dumpfile.gz /tmp/latest.$$.sql.gz || {
+scp $DATASERVER:/tmp/$NAME.dumpfile.gz /tmp/latest.$$.sql.gz || {
 	echo "can't copy from remote to local"
 	exit $E_COPYFAIL
 }
