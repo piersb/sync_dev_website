@@ -64,7 +64,7 @@ gunzip /tmp/latest.$$.sql.gz || {
 }
 
 echo "replacing local database"
-mysql --defaults-extra-file=$MYSQLCNF < /tmp/latest.$$.sql || {
+mysql --defaults-extra-file=$MYSQLCNF $DATABASE < /tmp/latest.$$.sql || {
 	echo "can't import live db dump into local db"
 	echo "trying to start MAMP and see if that solves the problem"
 	open -a MAMP || {
@@ -72,6 +72,14 @@ mysql --defaults-extra-file=$MYSQLCNF < /tmp/latest.$$.sql || {
 		exit $E_IMPORTFAIL
 	}
 }
+
+echo "updating local database to point to itself"
+mysql --defaults-file=$MYSQLCNF $DATABASE < "$HOME/.sync_dev_website/$LOCALISE_SQL" || {
+	echo "can't update local database to point to -dev"
+	exit $E_UPDATEFAIL
+}
+
+echo "live database downloaded and installed to dev"
 
 if [ -z $FURNITUREDIR ] ; then 
 	echo "no furniture directory set in config file"
@@ -82,8 +90,6 @@ else
 		exit $E_ASSETSFAIL
 	}
 fi
-
-
 
 if [ -z $REMOTE_ASSETS_DIR ] ; then
 	echo "no remote assets directory set in config file"
@@ -112,15 +118,6 @@ if [ $1 = lsf ] ; then
 	unlink "$LOCALDIR/furniture"
 	ln -s "$FURNITUREDIR" "$LOCALDIR/furniture"
 fi
-
-
-echo "updating local database to point to itself"
-mysql --defaults-extra-file=$MYSQLCNF < "$HOME/.sync_dev_website/$LOCALISE_SQL" || {
-	echo "can't update local database to point to -dev"
-	exit $E_UPDATEFAIL
-}
-
-echo "live database downloaded and installed to dev"
 
 
 exit 0
