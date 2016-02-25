@@ -11,7 +11,7 @@ E_UPDATEFAIL=83
 E_ASSETSFAIL=84
 E_CONFIGFAIL=85
 
-
+DUMPFILE="/tmp/dumpfile.$$"	
 
 if [ -r $HOME/.sync_dev_website/$1.config ] ; then
 	. $HOME/.sync_dev_website/$1.config
@@ -25,9 +25,10 @@ fi
 if [ -z "$NAME" ]; then echo NAME is not set in config file; exit $E_CONFIGFAIL; fi
 if [ -z "$DATABASE" ]; then echo DATABASE is not set in config file; exit $E_CONFIGFAIL; fi
 if [ -z "$REMOTEMYSQLCNF" ]; then echo REMOTEMYSQLCNF is not set in config file; exit $E_CONFIGFAIL; fi
-if [ -z "$DUMPFILE" ]; then echo DUMPFILE is not set in config file; exit $E_CONFIGFAIL; fi
 if [ -z "$SERVER" ]; then echo SERVER is not set in config file; exit $E_CONFIGFAIL; fi
 if [ -z "$LOCALISE_SQL" ]; then echo LOCALISE_SQL is not set in config file; exit $E_CONFIGFAIL; fi
+
+
 
 if [ -z "$DATASERVER" ]; then 
 	echo "DATASERVER is not set in config file; setting to $SERVER"
