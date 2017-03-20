@@ -1,0 +1,26 @@
+#! /bin/bash
+
+wp theme delete twentyfourteen
+wp theme delete twentyfifteen
+
+wp plugin uninstall hello
+
+wp plugin install advanced-custom-fields --activate
+wp plugin install acf-repeater --activate
+wp plugin install custom-post-type-ui --activate
+wp plugin install regenerate-thumbnails --activate
+wp plugin install wordpress-seo --activate
+
+while true; do
+    read -p "Shall I also install WooCommerce? " yn
+    case $yn in
+        [Yy]* ) 	
+        	wp plugin install woocommerce --activate
+        	wp plugin install woocommerce-gateway-realex-redirect --activate 
+        	break;;
+        [Nn]* ) 
+        	exit;;
+        * ) 
+        	echo "Please answer yes or no.";;
+    esac
+done
